@@ -1,21 +1,36 @@
 import * as dotenv from "dotenv";
 
-import { HardhatUserConfig, task } from "hardhat/config";
+import { HardhatUserConfig } from "hardhat/types";
 import "@nomiclabs/hardhat-etherscan";
 import "@nomiclabs/hardhat-waffle";
+import "@nomiclabs/hardhat-ethers";
 import "@typechain/hardhat";
+import "hardhat-deploy";
 import "hardhat-gas-reporter";
 import "solidity-coverage";
 
 dotenv.config();
 
 const config: HardhatUserConfig = {
-  solidity: "0.8.4",
+  defaultNetwork: "hardhat",
   networks: {
+    hardhat: {
+      chainId: 31337,
+    },
     rinkeby: {
+      chainId: 4,
       url: process.env.RINKEBY_URL || "",
       accounts:
         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+    },
+  },
+  solidity: "0.8.4",
+  namedAccounts: {
+    deployer: {
+      default: 0,
+    },
+    player: {
+      default: 1,
     },
   },
   gasReporter: {
