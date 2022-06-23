@@ -5,12 +5,17 @@ pragma solidity ^0.8.4;
 import "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
 import "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol";
 
+error NoBetSent();
+error CoinflipInCourse();
+error InsufficientContractFunds();
+
 contract Coinflip is VRFConsumerBaseV2 {
     VRFCoordinatorV2Interface public COORDINATOR;
 
     struct Bet {
         address player;
         uint256 bet;
+        bool didWin;
     }
 
     uint64 private immutable s_subscriptionId;
@@ -19,12 +24,12 @@ contract Coinflip is VRFConsumerBaseV2 {
     uint16 private constant requestConfirmations = 3;
     uint32 private constant numWords = 2;
 
-    uint256 public s_requestId;
-
+    uint256 private ethToSend;
     mapping(uint256 => Bet) public requestIdToBet;
+    mapping(address => bool) private userToCoinflip;
 
-    event randomnessRequested(uint256 requestId);
-    event coinflipEnd(uint256 requestId, Bet bet, bool didWin);
+    event RandomnessRequested(uint256 requestId);
+    event CoinflipEnd(uint256 requestId, Bet bet, bool didWin);
 
     constructor(
         uint64 subscriptionId,
@@ -37,9 +42,19 @@ contract Coinflip is VRFConsumerBaseV2 {
     }
 
     function requestCoinflip() external payable {
-        require(msg.value > 0, "No bet received");
+        if (msg.value == 0) {
+            revert NoBetSent();
+        }
 
-        s_requestId = COORDINATOR.requestRandomWords(
+        if ((ethToSend + msg.value * 2) > address(this).balance) {
+            revert InsufficientContractFunds();
+        }
+
+        if (userToCoinflip[msg.sender]) {
+            revert CoinflipInCourse();
+        }
+
+        uint256 s_requestId = COORDINATOR.requestRandomWords(
             keyHash,
             s_subscriptionId,
             requestConfirmations,
@@ -47,9 +62,11 @@ contract Coinflip is VRFConsumerBaseV2 {
             numWords
         );
 
-        requestIdToBet[s_requestId] = Bet(msg.sender, msg.value);
+        requestIdToBet[s_requestId] = Bet(msg.sender, msg.value, false);
+        userToCoinflip[msg.sender] = true;
+        ethToSend += msg.value * 2;
 
-        emit randomnessRequested(s_requestId);
+        emit RandomnessRequested(s_requestId);
     }
 
     function fulfillRandomWords(uint256 requestId, uint256[] memory randomWords)
@@ -57,13 +74,19 @@ contract Coinflip is VRFConsumerBaseV2 {
         override
     {
         bool hasWin = (randomWords[0] % 2 == 0);
-        Bet storage winnerBet = requestIdToBet[requestId];
+        Bet storage playerBet = requestIdToBet[requestId];
 
         if (hasWin) {
-            payable(winnerBet.player).transfer(winnerBet.bet);
-            emit coinflipEnd(requestId, winnerBet, hasWin);
+            payable(playerBet.player).transfer(playerBet.bet * 2);
+            playerBet.didWin = true;
+            emit CoinflipEnd(requestId, playerBet, hasWin);
         } else {
-            emit coinflipEnd(requestId, winnerBet, hasWin);
+            emit CoinflipEnd(requestId, playerBet, hasWin);
         }
+
+        userToCoinflip[playerBet.player] = false;
+        ethToSend -= playerBet.bet * 2;
     }
+
+    receive() external payable {}
 }
