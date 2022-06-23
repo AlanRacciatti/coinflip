@@ -19,6 +19,7 @@ contract Coinflip is VRFConsumerBaseV2 {
     }
 
     uint64 private immutable s_subscriptionId;
+    uint256 private s_requestId;
     bytes32 private immutable keyHash;
     uint32 private constant callbackGasLimit = 100000;
     uint16 private constant requestConfirmations = 3;
@@ -54,7 +55,7 @@ contract Coinflip is VRFConsumerBaseV2 {
             revert CoinflipInCourse();
         }
 
-        uint256 s_requestId = COORDINATOR.requestRandomWords(
+        s_requestId = COORDINATOR.requestRandomWords(
             keyHash,
             s_subscriptionId,
             requestConfirmations,
@@ -86,6 +87,14 @@ contract Coinflip is VRFConsumerBaseV2 {
 
         userToCoinflip[playerBet.player] = false;
         ethToSend -= playerBet.bet * 2;
+    }
+
+    function getAllBets() public view returns (Bet[] memory) {
+        Bet[] memory allBets = new Bet[](s_requestId);
+        for (uint256 i = 0; i < s_requestId; i++) {
+            allBets[i] = requestIdToBet[i + 1];
+        }
+        return allBets;
     }
 
     receive() external payable {}
