@@ -7,7 +7,7 @@ import {
   Event,
 } from "ethers";
 import { ethers } from "hardhat";
-import { Coinflip } from "../../../typechain";
+import { Coinflip } from "../../typechain";
 
 export const getParsedBalance = async (
   contract: Contract | SignerWithAddress
