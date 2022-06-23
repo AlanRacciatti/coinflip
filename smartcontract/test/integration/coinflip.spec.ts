@@ -1,5 +1,5 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
-import { deployments, ethers, network } from "hardhat";
+import { ethers, network } from "hardhat";
 import { Coinflip } from "../../typechain";
 import { developmentChains } from "../../helper-hardhat-config";
 import { CoinflipUtils } from "../utils/index";
