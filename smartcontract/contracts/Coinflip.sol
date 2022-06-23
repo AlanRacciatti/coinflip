@@ -27,7 +27,7 @@ contract Coinflip is VRFConsumerBaseV2 {
 
     uint256 private ethToSend;
     mapping(uint256 => Bet) public requestIdToBet;
-    mapping(address => bool) private userToCoinflip;
+    mapping(address => bool) public userToCoinflip;
 
     event RandomnessRequested(uint256 requestId);
     event CoinflipEnd(uint256 requestId, Bet bet, bool didWin);

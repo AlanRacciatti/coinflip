@@ -6,7 +6,8 @@ import {
   ContractTransaction,
   Event,
 } from "ethers";
-import { ethers } from "hardhat";
+import { ethers, network } from "hardhat";
+import { developmentChains } from "../../helper-hardhat-config";
 import { Coinflip } from "../../typechain";
 
 export const getParsedBalance = async (
@@ -25,10 +26,20 @@ export const fundContract = async (
   coinflipContract: Coinflip,
   signer: SignerWithAddress
 ): Promise<string> => {
-  await signer.sendTransaction({
+  const tx: ContractTransaction = await signer.sendTransaction({
     to: coinflipContract.address,
     value: ethers.utils.parseEther(fundEth),
   });
+
+  if (!developmentChains.includes(network.name))
+    console.log(`Fund requested with hash ${tx.hash}...`);
+
+  await tx.wait();
+
+  if (!developmentChains.includes(network.name)) {
+    console.log(`Successfully funded with ${fundEth} ETH!`);
+    console.log("--------------------------------------");
+  }
 
   const balance: BigNumber = await coinflipContract.provider.getBalance(
     coinflipContract.address
