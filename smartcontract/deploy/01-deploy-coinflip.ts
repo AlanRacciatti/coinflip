@@ -1,8 +1,6 @@
 import { Address } from "hardhat-deploy/dist/types";
 import { VRFCoordinatorV2Mock } from "../typechain";
 import { DeployFunction } from "hardhat-deploy/types";
-import "hardhat-deploy/dist/src/type-extensions";
-import "hardhat-deploy-ethers";
 
 import { network } from "hardhat";
 import { developmentChains, networkConfig } from "../helper-hardhat-config";
@@ -57,6 +55,5 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   });
 };
 
-export default func;
-
-module.exports.tags = ["all", "coinflip"];
+module.exports = func;
+module.exports.tags = ["all", "main"];
