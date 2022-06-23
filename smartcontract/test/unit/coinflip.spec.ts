@@ -121,34 +121,10 @@ describe("Coinflip", function () {
     ).to.be.revertedWith("CoinflipInCourse");
   });
 
-  describe("VRF Coordinator", function () {
-    it("Should emit an event when requesting randomness", async () => {
-      const bet: string = "0.01";
+  it("Should return all bets", async () => {
+    const bet: string = "0.01";
 
-      await CoinflipUtils.fundContract(bet, coinflipContract, deployer);
-
-      await expect(
-        coinflipConsumer.requestCoinflip({
-          value: ethers.utils.parseEther(bet),
-        })
-      ).to.emit(coinflipContract, "RandomnessRequested");
-    });
-
-    it("Should successfully receive the request", async () => {
-      const bet: string = "0.01";
-
-      await CoinflipUtils.fundContract(bet, coinflipContract, deployer);
-
-      await expect(
-        coinflipConsumer.requestCoinflip({
-          value: ethers.utils.parseEther(bet),
-        })
-      ).to.emit(vrfCoordinatorV2Mock, "RandomWordsRequested");
-    });
-
-    it("Should fulfill Random Number request", async () => {
-      const bet: string = "0.01";
-
+    for (let i = 0; i < 3; i++) {
       await CoinflipUtils.fundContract(bet, coinflipContract, deployer);
 
       const tx: ContractTransaction = await coinflipConsumer.requestCoinflip({
@@ -157,31 +133,19 @@ describe("Coinflip", function () {
 
       const requestId: number = await CoinflipUtils.getVrfRequestId(tx);
 
-      await expect(
-        vrfCoordinatorV2Mock.fulfillRandomWords(
-          requestId,
-          coinflipContract.address
-        )
-      ).to.emit(vrfCoordinatorV2Mock, "RandomWordsFulfilled");
-    });
+      await vrfCoordinatorV2Mock.fulfillRandomWords(
+        requestId,
+        coinflipContract.address
+      );
+    }
 
-    it("Should emit an event after coinflip ends", async () => {
-      const bet: string = "0.01";
+    const allBets = await coinflipContract.getAllBets();
 
-      await CoinflipUtils.fundContract(bet, coinflipContract, deployer);
+    expect(allBets.length).to.equal(3);
 
-      const tx: ContractTransaction = await coinflipConsumer.requestCoinflip({
-        value: ethers.utils.parseEther(bet),
-      });
-
-      const requestId: number = await CoinflipUtils.getVrfRequestId(tx);
-
-      await expect(
-        vrfCoordinatorV2Mock.fulfillRandomWords(
-          requestId,
-          coinflipContract.address
-        )
-      ).to.emit(coinflipContract, "CoinflipEnd");
+    allBets.forEach((contractBet) => {
+      expect(contractBet.player).to.equal(alice.address);
+      expect(contractBet.bet).to.equal(ethers.utils.parseEther(bet));
     });
   });
 });
