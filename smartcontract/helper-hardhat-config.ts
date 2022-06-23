@@ -1,6 +1,6 @@
 const networkConfig = {
   4: {
-    subscriptionId: 5555,
+    subscriptionId: process.env.SUBSCRIPTION_ID,
     name: "rinkeby",
     vrfCoordinatorV2: "0x6168499c0cFfCaCD319c818142124B7A15E857ab",
   },
