@@ -55,6 +55,13 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     log: true,
   });
 
+  log("VRF FUNDING");
+  log("------");
+  log(
+    `Make sure to add your contract as consumer at https://vrf.chain.link/${network.name}/${process.env.SUBSCRIPTION_ID} and fund it with LINK`
+  );
+  log("-----------------------------------------------------------------");
+
   if (
     !developmentChains.includes(network.name) &&
     process.env.ETHERSCAN_API_KEY
@@ -70,10 +77,9 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     }
 
     log("--------------------------------------");
-    log("VRF FUNDING");
-    log("------");
+  } else {
     log(
-      `Make sure to add your contract as consumer at https://vrf.chain.link/${network.name}/${process.env.SUBSCRIPTION_ID} and fund it with LINK`
+      "Get an etherscan API KEY to verify your contract at https://etherscan.io/"
     );
   }
 };
