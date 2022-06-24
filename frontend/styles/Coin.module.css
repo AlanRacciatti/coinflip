@@ -1,0 +1,42 @@
+.container {
+  height: 300px;
+  width: 300px;
+  position: relative;
+  margin: 32px auto;
+  -webkit-transform-style: preserve-3d;
+  transform-style: preserve-3d;
+}
+
+.animationTrigger {
+  animation: spin-heads 4s infinite linear;
+}
+
+.heads,
+.tails {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+.tails {
+  transform: rotateX(180deg);
+}
+
+@keyframes spin-tails {
+  0% {
+    transform: rotateX(0);
+  }
+  100% {
+    transform: rotateX(1980deg);
+  }
+}
+@keyframes spin-heads {
+  0% {
+    transform: rotateX(0);
+  }
+  100% {
+    transform: rotateX(2160deg);
+  }
+}
