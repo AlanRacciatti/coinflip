@@ -12,11 +12,14 @@ export default function CoinflipGame() {
   const [bet, setBet] = useState(0);
   const [fundAmount, setFundAmount] = useState(0);
 
+  const [isRequestingCoinflipTx, setIsRequestingCoinflipTx] = useState(false);
   const [isFundingContractTx, setIsFundingContractTx] = useState(false);
+  const [coinToShow, setCoinToShow] = useState("eth");
 
   const dispatch = useNotification();
 
   const { chainId: chainIdHex, web3, Moralis } = useMoralis();
+
   const chainId = parseInt(chainIdHex, 16);
   const coinflipAddress =
     chainId in contractAddresses ? contractAddresses[chainId][0] : null;
@@ -30,6 +33,17 @@ export default function CoinflipGame() {
     functionName: "requestCoinflip",
     params: {},
     msgValue: ethers.utils.parseEther(bet.toString()),
+  });
+
+  const {
+    fetch: fundContract,
+    isFetching: isFundingContract,
+    error: fundContractError,
+    data: fundContractData,
+  } = useWeb3Transfer({
+    type: "native",
+    amount: Moralis.Units.ETH(fundAmount),
+    receiver: coinflipAddress,
   });
 
   const getContractBalance = async () => {
@@ -58,16 +72,6 @@ export default function CoinflipGame() {
     });
   };
 
-  const {
-    fetch: fundContract,
-    isFetching: isFundingContract,
-    data: fundContractData,
-  } = useWeb3Transfer({
-    type: "native",
-    amount: Moralis.Units.ETH(fundAmount),
-    receiver: coinflipAddress,
-  });
-
   useEffect(() => {
     if (fundContractData) {
       let ethFunded = fundAmount;
@@ -76,18 +80,68 @@ export default function CoinflipGame() {
         handleNewNotification(dispatch, {
           type: "success",
           title: "Contract funded!",
-          message: `The contract has been funded with ${fundAmount} ETH`,
+          message: `The contract has been funded with ${ethFunded} ETH`,
         });
       });
     }
-  }, [fundContractData]);
+    if (fundContractError) {
+      setIsFundingContractTx(false);
+    }
+  }, [fundContractData, fundContractError]);
+
+  useEffect(() => {
+    if (web3) {
+      const signer = web3.getSigner();
+      const contract = new ethers.Contract(coinflipAddress, abi, signer);
+
+      contract.on("RandomnessRequested", () => {
+        setIsFlippingCoin(true);
+        handleNewNotification(dispatch, {
+          type: "success",
+          title: "Coinflip",
+          message: "Coinflip successfully requested, good luck!",
+        });
+      });
+
+      contract.on(
+        "CoinflipEnd",
+        (requestId, playerBet, hasWin) => {
+          setTimeout(() => {
+            setIsFlippingCoin(false);
+            setIsRequestingCoinflipTx(false);
+
+            let parsedBet = ethers.utils.formatEther(playerBet[1]);
+
+            if (hasWin) {
+              handleNewNotification(dispatch, {
+                type: "success",
+                title: "Coinflip :D",
+                message: `Coin gave ETH, you won ${parsedBet} ETH`,
+              });
+
+              setCoinToShow("eth");
+            } else {
+              handleNewNotification(dispatch, {
+                type: "error",
+                title: "Coinflip :(",
+                message: `Coin gave BTC, you lost your ${parsedBet} ETH :(`,
+              });
+
+              setCoinToShow("btc");
+            }
+          });
+        },
+        100
+      );
+    }
+  }, [web3]);
 
   return (
     <div className={styles.container}>
-      <Typography variant="h2">
+      <Typography variant="h2" color={"white"}>
         Flip the coin and duplicate your ETH in seconds!
       </Typography>
-      <Coinflip isFlippingCoin={isFlippingCoin} />
+      <Coinflip isFlippingCoin={isFlippingCoin} coinToShow={coinToShow} />
       <div className={styles.buttons}>
         <Input
           placeholder="0.01"
@@ -98,7 +152,7 @@ export default function CoinflipGame() {
           width={100}
           prefixIcon="eth"
           type="number"
-          disabled={isRequestingCoinflip}
+          disabled={isRequestingCoinflip || isRequestingCoinflipTx}
         />
         <Button
           id="test-button-primary"
@@ -116,6 +170,8 @@ export default function CoinflipGame() {
                 onSuccess: handleSuccess,
                 onError: (error) => console.log(error),
               });
+
+              setIsRequestingCoinflipTx(true);
             } else {
               handleNewNotification(dispatch, {
                 type: "error",
@@ -128,7 +184,10 @@ export default function CoinflipGame() {
           theme="colored"
           color="yellow"
           type="button"
-          isLoading={isRequestingCoinflip}
+          loadingText={isFlippingCoin ? "Flipping..." : "Requesting..."}
+          isLoading={
+            isRequestingCoinflip || isRequestingCoinflipTx || isFlippingCoin
+          }
         />
       </div>
       <div className={styles.buttons}>
@@ -138,7 +197,7 @@ export default function CoinflipGame() {
           width={100}
           prefixIcon="eth"
           type="number"
-          disabled={isFundingContract || isFundingContractTx}
+          disabled={isFundingContract || isFundingContractTx || isFlippingCoin}
           description="Fund amount"
         />
         <Button
@@ -158,6 +217,7 @@ export default function CoinflipGame() {
           text="Fund contract"
           theme="primary"
           type="button"
+          loadingText="Funding contract..."
           isLoading={isFundingContract || isFundingContractTx}
         />
       </div>
