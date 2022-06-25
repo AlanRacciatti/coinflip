@@ -9,7 +9,10 @@ const FRONT_END_ABI_FILE = "../frontend/constants/abi.json";
 
 module.exports = async function (hre: HardhatRuntimeEnvironment) {
   if (process.env.UPDATE_FRONT_END) {
-    console.log("Updating front end");
+    console.log("----------------------------------------------");
+    console.log("FRONTEND");
+    console.log("Updated abi.json and contractAddresses.json files");
+    console.log("----------------------------------------------");
     await updateAbi(hre);
     await updateContractAddresses(hre);
   }

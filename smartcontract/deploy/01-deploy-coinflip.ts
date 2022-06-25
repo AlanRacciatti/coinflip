@@ -55,12 +55,13 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     log: true,
   });
 
-  log("VRF FUNDING");
-  log("------");
-  log(
-    `Make sure to add your contract as consumer at https://vrf.chain.link/${network.name}/${process.env.SUBSCRIPTION_ID} and fund it with LINK`
-  );
-  log("-----------------------------------------------------------------");
+  if (!developmentChains.includes(network.name)) {
+    log("----------------------------------------------");
+    log("VRF FUNDING");
+    log(
+      `Make sure to add your contract as consumer at https://vrf.chain.link/${network.name}/${process.env.SUBSCRIPTION_ID} and fund it with LINK`
+    );
+  }
 
   if (
     !developmentChains.includes(network.name) &&
@@ -68,19 +69,18 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   ) {
     const deployedContract: Deployment = await deployments.get("Coinflip");
     if (process.env.ETHERSCAN_API_KEY) {
-      log("--------------------------------------");
+      log("----------------------------------------------");
       log("CONTRACT VERIFICATION");
-      log("------");
       log(
-        `Verify the contract: npx hardhat verify --network ${network.name} ${deployedContract.address} ${args[0]} "${args[1]}" "${args[2]}"`
+        `npx hardhat verify --network ${network.name} ${deployedContract.address} ${args[0]} "${args[1]}" "${args[2]}"`
       );
     }
-
-    log("--------------------------------------");
   } else {
-    log(
-      "Get an etherscan API KEY to verify your contract at https://etherscan.io/"
-    );
+    if (!developmentChains.includes(network.name)) {
+      log(
+        "Get an etherscan API KEY to verify your contract at https://etherscan.io/"
+      );
+    }
   }
 };
 
