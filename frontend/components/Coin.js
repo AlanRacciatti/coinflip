@@ -14,10 +14,10 @@ export default function Coin({ isFlippingCoin }) {
       }
     >
       <div className={styles.heads}>
-        <Image src={bitcoinCoin} width={300} height={300} alt="Bitcoin" />
+        <Image src={ethereumCoin} width={300} height={300} alt="Ethereum" />
       </div>
       <div className={styles.tails}>
-        <Image src={ethereumCoin} width={300} height={300} alt="Ethereum" />
+        <Image src={bitcoinCoin} width={300} height={300} alt="Bitcoin" />
       </div>
     </div>
   );
