@@ -4,7 +4,7 @@ import Image from "next/image";
 import bitcoinCoin from "../public/bitcoin-coin.png";
 import ethereumCoin from "../public/ethereum-coin.png";
 
-export default function Coin({ isFlippingCoin }) {
+export default function Coin({ isFlippingCoin, coinToShow }) {
   return (
     <div
       className={
@@ -14,10 +14,20 @@ export default function Coin({ isFlippingCoin }) {
       }
     >
       <div className={styles.heads}>
-        <Image src={ethereumCoin} width={300} height={300} alt="Ethereum" />
+        <Image
+          src={coinToShow === "eth" ? ethereumCoin : bitcoinCoin}
+          width={300}
+          height={300}
+          alt="Ethereum"
+        />
       </div>
       <div className={styles.tails}>
-        <Image src={bitcoinCoin} width={300} height={300} alt="Bitcoin" />
+        <Image
+          src={coinToShow === "eth" ? bitcoinCoin : ethereumCoin}
+          width={300}
+          height={300}
+          alt="Bitcoin"
+        />
       </div>
     </div>
   );
