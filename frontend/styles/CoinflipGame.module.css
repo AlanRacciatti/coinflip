@@ -21,3 +21,8 @@
 .buttons button {
   width: 200px;
 }
+
+.title {
+  width: 95%;
+  text-align: center;
+}

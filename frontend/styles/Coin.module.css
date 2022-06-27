@@ -1,6 +1,6 @@
 .container {
-  height: 300px;
-  width: 300px;
+  height: 200px;
+  width: 250px;
   position: relative;
   margin: 32px auto;
   -webkit-transform-style: preserve-3d;

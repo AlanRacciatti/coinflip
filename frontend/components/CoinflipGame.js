@@ -138,9 +138,11 @@ export default function CoinflipGame() {
 
   return (
     <div className={styles.container}>
-      <Typography variant="h2" color={"white"}>
-        Flip the coin and duplicate your ETH in seconds!
-      </Typography>
+      <div className={styles.title}>
+        <Typography variant="h2" color={"white"}>
+          Flip the coin and duplicate your ETH in seconds!
+        </Typography>
+      </div>
       <Coinflip isFlippingCoin={isFlippingCoin} coinToShow={coinToShow} />
       <div className={styles.buttons}>
         <Input
