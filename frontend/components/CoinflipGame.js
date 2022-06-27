@@ -4,7 +4,7 @@ import Coinflip from "./Coin";
 import styles from "../styles/CoinflipGame.module.css";
 import { useWeb3Contract, useMoralis, useWeb3Transfer } from "react-moralis";
 import { abi, contractAddresses } from "../constants";
-import { BigNumber, ethers } from "ethers";
+import { ethers } from "ethers";
 import handleNewNotification from "../utils/handleNewNotification";
 
 export default function CoinflipGame() {
