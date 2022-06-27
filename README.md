@@ -79,6 +79,9 @@ This blockchain-based project allows users to bet ETH and randomly duplicate or 
 - [Nodejs](https://nodejs.org/en/)
   - You'll know you've installed nodejs right if you can run:
     - `node --version` and get an ouput like: `vx.x.x`
+- [Yarn](https://yarnpkg.com/)
+  - You'll know you've installed npm right if you can run:
+    - `yarn --version` and get an output like: `x.x.x`
 - [npm](https://www.npmjs.com/)
   - You'll know you've installed yarn right if you can run:
     - `yarn --version` and get an output like: `x.x.x`
