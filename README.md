@@ -70,9 +70,7 @@ This blockchain-based project allows users to bet ETH and randomly duplicate or 
 
 ## Getting Started
 
-### Smart contract
-
-#### Prerequisites
+### Prerequisites
 
 - [git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
   - You'll know you did it right if you can run `git --version` and you see a response like `git version x.x.x`
@@ -88,14 +86,31 @@ This blockchain-based project allows users to bet ETH and randomly duplicate or 
 - [Hardhat](https://hardhat.org/)
   - You'll know you've installed yarn right if you can run:
     - `npx hardhat --version` and get an output like: `x.x.x`
-
+    
+    
 #### Quickstart
 
 ```bash
 git clone github.com/AlanRacciatti/coinflip
-cd coinflip
+cd coinflip/frontend
+yarn
+cd ../smartcontract
 npm i
+npx hardhat deploy --network rinkeby # Add contract to Chainlink VRF
+cd ../frontend
+yarn dev
 ```
+
+### Frontend
+##### Disclaimer: In order to setup your frontend well, you need to previously deploy your contract because the ABI and contract address are automatically imported 
+
+```bash
+yarn
+yarn dev
+```
+
+### Smart contract
+
    
 #### Usage   
 Deploy:
