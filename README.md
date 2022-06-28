@@ -11,7 +11,7 @@
   <p align="center">
     Flip the coin and win ETH
     <br />
-    <a href="https://github.com/AlanRacciatti/coinflip">View Demo</a>
+    <a href="https://eth-coinflip.vercel.app/">View Demo</a>
     ·
     <a href="https://github.com/AlanRacciatti/coinflip/issues">Report Bug</a>
     ·
